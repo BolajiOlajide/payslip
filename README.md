@@ -1,3 +1,11 @@
+# Payslip
+
+## Setup
+
+* Get your credentials [here](https://developers.google.com/gmail/api/quickstart/python?authuser=1). Enable the Gmail API, then download the credentials JSON to the root of the project
+
+
+
 # Scraping data from Gmail using Python
 #### 28th March 2016
 **The problem:** Realising that Amazon S3 (which I host my website on) does not support PHP and I need to host a form for a Language Acquisition experiment.
