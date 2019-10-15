@@ -82,8 +82,7 @@ def download_attachments(messages, service):
 
 
 def scrape_email(service):
-    email = "NG-FMKPMGPayroll@ng.kpmg.com"
-    # email = input('Enter the Payer's email address you\'ll like to scrape: \n')
+    email = input('Enter the Payer\'s email address you\'ll like to scrape: \n')
     print(f"Scraping payslips from: {email}\n")
 
     messages = get_messages(service, email)
