@@ -24,3 +24,5 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+attachments
