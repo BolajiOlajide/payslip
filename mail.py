@@ -4,6 +4,10 @@ import sys
 from apiclient import errors
 
 
+def camelize(string):
+    return "_".join(string.lower().split(" "))
+
+
 def get_messages(service, email):
     try:
         query = f"from:{email}"
@@ -39,37 +43,52 @@ def download_attachments(messages, service):
     for message in messages:
         message_detail = get_message_detail(message["id"], service)
 
-        internal_date = message_detail.get('internalDate')
-        message_id = message_detail.get('id')
+        message_id = message_detail.get("id")
 
         for part in message_detail["payload"]["parts"]:
-            print(f'Scraping email with message ID: {message_id}')
+            print(f"Scraping email with message ID: {message_id}")
             filename = part.get("filename")
-            print(filename, '<===')
+            subject = [
+                camelize(i["value"])
+                for i in message_detail["payload"]["headers"]
+                if i["name"] == "Subject"
+            ][0]
 
             if filename:
                 try:
-                    # import pdb; pdb.set_trace()
-                    file_data = base64.urlsafe_b64decode(
-                        part["body"]["data"].encode("UTF-8")
-                    )
-                    path = f"attachments/{filename}"
-                    with open('jue.txt', "w") as f:
-                        f.write('One two threee!')
+                    attachment_id = part["body"].get("attachmentId")
 
-                    file = open(path, 'w')
-                    file.write(file_data)
-                    file.close()
-                    print(f'Successfully saved to {path}')
+                    if "data" in part["body"]:
+                        attachment = part["body"]["data"]
+                    else:
+                        attachment_response = (
+                            service.users()
+                            .messages()
+                            .attachments()
+                            .get(userId="me", messageId=message_id, id=attachment_id)
+                            .execute()
+                        )
+                        attachment = attachment_response["data"]
+
+                    file_data = base64.urlsafe_b64decode(attachment.encode("UTF-8"))
+                    path = f"attachments/{subject}+{filename}"
+
+                    with open(path, "wb") as f:
+                        f.write(file_data)
+                    print(f"Successful saved the attachment in {path}\n")
+
                 except KeyError:
-                    print('Something funky! is missing...')
+                    print("Something funky! is missing...")
 
 
 def scrape_email(service):
-    email = input('Enter the Payer's email address you\'ll like to scrape: \n')
-    print(f'Scraping payslips from: {email}\n')
+    email = "NG-FMKPMGPayroll@ng.kpmg.com"
+    # email = input('Enter the Payer's email address you\'ll like to scrape: \n')
+    print(f"Scraping payslips from: {email}\n")
 
     messages = get_messages(service, email)
 
-    print(f'Got {len(messages)} emails from {email}. Will begin downloading the payslips shortly.')
+    print(
+        f"Got {len(messages)} emails from {email}. Will begin downloading the payslips shortly."
+    )
     return download_attachments(messages, service)

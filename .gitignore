@@ -10,6 +10,7 @@ credentials.json
 attachments
 
 .vscode
+.DS_Store
 
 # pickle
 token.pickle
